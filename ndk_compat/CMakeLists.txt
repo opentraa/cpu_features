@@ -6,23 +6,23 @@ find_package(Threads REQUIRED)
 set (NDK_COMPAT_HDRS cpu-features.h)
 set (NDK_COMPAT_SRCS
   cpu-features.c
-  $<TARGET_OBJECTS:utils>
-  $<TARGET_OBJECTS:unix_based_hardware_detection>
+  $<TARGET_OBJECTS:cpu_features_utils>
+  $<TARGET_OBJECTS:cpu_features_hardware_detection>
 )
 # Note that following `add_cpu_features_headers_and_sources` will use
 # NDK_COMPAT_SRCS in lieu of NDK_COMPAT_HDRS because we don't want cpu_features
-# headers to be installed alongside ndk_compat.
+# headers to be installed alongside cpu_features_ndk_compat.
 add_cpu_features_headers_and_sources(NDK_COMPAT_SRCS NDK_COMPAT_SRCS)
-add_library(ndk_compat ${NDK_COMPAT_HDRS} ${NDK_COMPAT_SRCS})
-setup_include_and_definitions(ndk_compat)
-target_include_directories(ndk_compat PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-target_link_libraries(ndk_compat PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-set_target_properties(ndk_compat PROPERTIES PUBLIC_HEADER "${NDK_COMPAT_HDRS}")
+add_library(cpu_features_ndk_compat ${NDK_COMPAT_HDRS} ${NDK_COMPAT_SRCS})
+setup_include_and_definitions(cpu_features_ndk_compat)
+target_include_directories(cpu_features_ndk_compat PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_link_libraries(cpu_features_ndk_compat PUBLIC ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+set_target_properties(cpu_features_ndk_compat PROPERTIES PUBLIC_HEADER "${NDK_COMPAT_HDRS}")
 
 include(GNUInstallDirs)
-install(TARGETS ndk_compat
+install(TARGETS cpu_features_ndk_compat
   EXPORT CpuFeaturesNdkCompatTargets
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ndk_compat
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cpu_features_ndk_compat
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -56,5 +56,5 @@ install(
 #
 if(BUILD_TESTING)
   add_executable(ndk-compat-test ndk-compat-test.c)
-  target_link_libraries(ndk-compat-test PRIVATE ndk_compat)
+  target_link_libraries(ndk-compat-test PRIVATE cpu_features_ndk_compat)
 endif()

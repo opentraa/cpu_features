@@ -120,10 +120,10 @@ macro(add_cpu_features_headers_and_sources HDRS_LIST_NAME SRCS_LIST_NAME)
 endmacro()
 
 #
-# library : utils
+# library : cpu_features_utils
 #
 
-add_library(utils OBJECT
+add_library(cpu_features_utils OBJECT
   ${PROJECT_SOURCE_DIR}/include/internal/bit_utils.h
   ${PROJECT_SOURCE_DIR}/include/internal/filesystem.h
   ${PROJECT_SOURCE_DIR}/include/internal/stack_line_reader.h
@@ -132,31 +132,31 @@ add_library(utils OBJECT
   ${PROJECT_SOURCE_DIR}/src/stack_line_reader.c
   ${PROJECT_SOURCE_DIR}/src/string_view.c
 )
-setup_include_and_definitions(utils)
+setup_include_and_definitions(cpu_features_utils)
 
 #
-# library : unix_based_hardware_detection
+# library : cpu_features_hardware_detection
 #
 
 if(UNIX)
-  add_library(unix_based_hardware_detection OBJECT
+  add_library(cpu_features_hardware_detection OBJECT
     ${PROJECT_SOURCE_DIR}/include/internal/hwcaps.h
     ${PROJECT_SOURCE_DIR}/src/hwcaps_linux_or_android.c
     ${PROJECT_SOURCE_DIR}/src/hwcaps_freebsd_or_openbsd.c
     ${PROJECT_SOURCE_DIR}/src/hwcaps.c
   )
-  setup_include_and_definitions(unix_based_hardware_detection)
+  setup_include_and_definitions(cpu_features_hardware_detection)
   check_include_file(dlfcn.h HAVE_DLFCN_H)
   if(HAVE_DLFCN_H)
-    target_compile_definitions(unix_based_hardware_detection PRIVATE HAVE_DLFCN_H)
+    target_compile_definitions(cpu_features_hardware_detection PRIVATE HAVE_DLFCN_H)
   endif()
   check_symbol_exists(getauxval "sys/auxv.h" HAVE_STRONG_GETAUXVAL)
   check_symbol_exists(elf_aux_info "sys/auxv.h" HAVE_STRONG_ELF_AUX_INFO)
   if(HAVE_STRONG_GETAUXVAL)
-    target_compile_definitions(unix_based_hardware_detection PRIVATE HAVE_STRONG_GETAUXVAL)
+    target_compile_definitions(cpu_features_hardware_detection PRIVATE HAVE_STRONG_GETAUXVAL)
   endif()
   if(HAVE_STRONG_ELF_AUX_INFO)
-    target_compile_definitions(unix_based_hardware_detection PUBLIC HAVE_STRONG_ELF_AUX_INFO)
+    target_compile_definitions(cpu_features_hardware_detection PUBLIC HAVE_STRONG_ELF_AUX_INFO)
   endif()
 endif()
 
@@ -166,9 +166,9 @@ endif()
 set (CPU_FEATURES_HDRS)
 set (CPU_FEATURES_SRCS)
 add_cpu_features_headers_and_sources(CPU_FEATURES_HDRS CPU_FEATURES_SRCS)
-list(APPEND CPU_FEATURES_SRCS $<TARGET_OBJECTS:utils>)
+list(APPEND CPU_FEATURES_SRCS $<TARGET_OBJECTS:cpu_features_utils>)
 if(NOT PROCESSOR_IS_X86 AND UNIX)
-  list(APPEND CPU_FEATURES_SRCS $<TARGET_OBJECTS:unix_based_hardware_detection>)
+  list(APPEND CPU_FEATURES_SRCS $<TARGET_OBJECTS:cpu_features_hardware_detection>)
 endif()
 add_library(cpu_features ${CPU_FEATURES_HDRS} ${CPU_FEATURES_SRCS})
 set_target_properties(cpu_features PROPERTIES PUBLIC_HEADER "${CPU_FEATURES_HDRS}")
